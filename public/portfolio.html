@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna — Appointment Setter & Virtual Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #faf8f3;
+  --cream2: #f4f0e8;
+  --cream3: #ede8dc;
+  --ink: #1a1812;
+  --ink2: #2d2920;
+  --ink3: #3f3b32;
+  --gold: #b89a5c;
+  --gold-light: #d4b87a;
+  --gold-pale: rgba(184,154,92,0.12);
+  --muted: rgba(26,24,18,0.48);
+  --muted2: rgba(26,24,18,0.32);
+  --border: rgba(184,154,92,0.2);
+  --border2: rgba(26,24,18,0.1);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Jost', sans-serif;
+  --shadow: 0 2px 32px rgba(26,24,18,0.08);
+  --shadow-lg: 0 8px 64px rgba(26,24,18,0.12);
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--cream); color: var(--ink); font-family: var(--sans); font-weight: 300; overflow-x: hidden; }
+
+/* ── CUSTOM CURSOR ── */
+.cursor-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%,-50%); transition: transform 0.08s; }
+.cursor-ring { width: 28px; height: 28px; border: 1px solid var(--gold); border-radius: 50%; position: fixed; z-index: 9998; pointer-events: none; transform: translate(-50%,-50%); transition: all 0.14s ease; opacity: 0.6; }
+body { cursor: none; }
+a, button { cursor: none; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.6rem 5rem;
+  transition: all 0.5s ease;
+}
+nav.scrolled {
+  background: rgba(250,248,243,0.94);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border2);
+  padding: 1.1rem 5rem;
+  box-shadow: 0 1px 20px rgba(26,24,18,0.06);
+}
+.nav-logo {
+  font-family: var(--serif); font-size: 1.7rem; font-style: italic;
+  font-weight: 400; color: var(--ink); text-decoration: none; letter-spacing: 0.01em;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links {
+  display: flex; gap: 2.8rem; list-style: none; align-items: center;
+}
+.nav-links a {
+  font-size: 0.68rem; font-weight: 400; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted); text-decoration: none;
+  transition: color 0.3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
+  height: 1px; background: var(--gold); transform: scaleX(0);
+  transition: transform 0.3s; transform-origin: left;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-cta {
+  font-size: 0.66rem; font-weight: 400; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--cream); background: var(--ink);
+  padding: 0.7rem 1.8rem; text-decoration: none; border-radius: 0;
+  transition: all 0.3s; border: 1px solid var(--ink);
+}
+.nav-cta:hover { background: var(--gold); border-color: var(--gold); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh; display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--cream);
+  position: relative; overflow: hidden;
+}
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 9rem 4rem 6rem 5rem; position: relative; z-index: 2;
+}
+.hero-right {
+  position: relative; overflow: hidden; background: var(--ink2);
+}
+.hero-right-inner {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+}
+.hero-right::before {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(135deg, rgba(184,154,92,0.15) 0%, transparent 60%);
+}
+/* Decorative pattern */
+.hero-pattern {
+  position: absolute; inset: 0; opacity: 0.04;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 39px, rgba(255,255,255,0.8) 39px, rgba(255,255,255,0.8) 40px
+  ), repeating-linear-gradient(
+    90deg, transparent, transparent 39px, rgba(255,255,255,0.8) 39px, rgba(255,255,255,0.8) 40px
+  );
+}
+.hero-monogram {
+  font-family: var(--serif); font-size: 14rem; font-style: italic; font-weight: 300;
+  color: rgba(255,255,255,0.06); line-height: 1; position: absolute;
+  bottom: -2rem; right: -1rem; z-index: 0; pointer-events: none;
+  opacity: 0; animation: fadeIn 1.5s 0.8s ease forwards;
+}
+.hero-center-text {
+  position: relative; z-index: 2; text-align: center; padding: 2rem;
+}
+.hero-center-text .eyebrow {
+  font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--gold-light); font-weight: 400; margin-bottom: 2rem;
+  opacity: 0; animation: fadeIn 1s 1s ease forwards;
+}
+.hero-big-a {
+  font-family: var(--serif); font-size: clamp(8rem, 14vw, 12rem);
+  font-style: italic; font-weight: 300;
+  color: rgba(255,255,255,0.12); line-height: 1;
+  opacity: 0; animation: fadeIn 1.2s 0.6s ease forwards;
+}
+.hero-tagline-right {
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); margin-top: 1.5rem;
+  opacity: 0; animation: fadeIn 1s 1.2s ease forwards;
+}
+
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.64rem; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 2.5rem;
+  opacity: 0; animation: fadeUp 1s 0.4s ease forwards;
+}
+.hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+.hero-h1 {
+  font-family: var(--serif); font-size: clamp(3rem, 4.5vw, 5rem);
+  font-weight: 400; line-height: 1.08; letter-spacing: -0.01em;
+  color: var(--ink); margin-bottom: 2rem;
+  opacity: 0; animation: fadeUp 1s 0.6s ease forwards;
+}
+.hero-h1 em { font-style: italic; color: var(--gold); }
+.hero-sub {
+  font-size: 0.92rem; line-height: 1.85; color: var(--muted);
+  max-width: 420px; margin-bottom: 3.5rem; font-weight: 300;
+  opacity: 0; animation: fadeUp 1s 0.8s ease forwards;
+}
+.hero-actions {
+  display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 1s 1s ease forwards;
+}
+.btn-primary {
+  font-family: var(--sans); font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  background: var(--ink); color: var(--cream);
+  padding: 1rem 2.4rem; text-decoration: none; display: inline-block;
+  border: 1px solid var(--ink); transition: all 0.3s;
+}
+.btn-primary:hover { background: var(--gold); border-color: var(--gold); color: var(--cream); }
+.btn-outline {
+  font-family: var(--sans); font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink); padding: 1rem 2.4rem; text-decoration: none;
+  display: inline-block; border: 1px solid var(--border2); transition: all 0.3s;
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+.hero-scroll {
+  position: absolute; bottom: 3rem; left: 5rem;
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted2);
+  opacity: 0; animation: fadeIn 1s 1.4s ease forwards;
+}
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent); }
+
+/* ── STATS ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2);
+  background: var(--cream2);
+}
+.stat-item {
+  padding: 2.8rem 2rem; text-align: center;
+  border-right: 1px solid var(--border2); transition: background 0.4s;
+}
+.stat-item:last-child { border-right: none; }
+.stat-item:hover { background: var(--cream3); }
+.stat-number {
+  font-family: var(--serif); font-size: 3.2rem; font-weight: 400;
+  font-style: italic; color: var(--gold); display: block; line-height: 1;
+}
+.stat-label {
+  font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-top: 0.6rem; display: block;
+}
+
+/* ── SECTIONS ── */
+section { padding: 8rem 5rem; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: 1rem;
+  font-size: 0.64rem; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.5rem; font-weight: 400;
+}
+.section-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); }
+h2.section-title {
+  font-family: var(--serif); font-size: clamp(2.4rem, 3.5vw, 3.8rem);
+  font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; color: var(--ink);
+}
+h2.section-title em { font-style: italic; color: var(--gold); }
+
+/* ── ABOUT ── */
+#about { background: var(--cream); }
+.about-wrap { max-width: 1200px; margin: 0 auto; }
+.about-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 8rem; align-items: center; margin-top: 4rem; }
+.about-portrait {
+  position: relative; aspect-ratio: 3/4;
+  background: var(--cream2); border: 1px solid var(--border2);
+}
+.about-portrait::before {
+  content: ''; position: absolute; top: 16px; left: 16px; right: -16px; bottom: -16px;
+  border: 1px solid var(--border); z-index: -1;
+}
+.portrait-inner {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.portrait-inner::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(26,24,18,0.04) 100%);
+}
+.portrait-monogram {
+  font-family: var(--serif); font-size: 9rem; font-style: italic; font-weight: 300;
+  color: rgba(184,154,92,0.2); line-height: 1; user-select: none;
+}
+.portrait-badge {
+  position: absolute; bottom: 2rem; right: -1.5rem;
+  background: var(--ink); color: var(--cream);
+  padding: 1.2rem 1.5rem; text-align: center; z-index: 2;
+  min-width: 110px;
+}
+.portrait-badge strong { font-family: var(--serif); font-size: 2rem; font-weight: 400; font-style: italic; color: var(--gold-light); display: block; line-height: 1; }
+.portrait-badge span { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.3rem; display: block; }
+.about-body p { font-size: 0.97rem; line-height: 1.9; color: var(--muted); margin-bottom: 1.4rem; }
+.about-body p:first-child { font-family: var(--serif); font-size: 1.2rem; line-height: 1.75; color: var(--ink3); font-weight: 400; }
+.about-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2.5rem; }
+.tag {
+  font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.4rem 1rem; border: 1px solid var(--border2); color: var(--muted);
+  transition: all 0.3s; background: transparent;
+}
+.tag:hover { border-color: var(--gold); color: var(--gold); }
+.about-divider { width: 40px; height: 1px; background: var(--gold); margin: 2rem 0; }
+
+/* ── SERVICES ── */
+#services { background: var(--ink2); }
+#services .section-tag { color: var(--gold); }
+#services .section-title { color: var(--cream); }
+.services-subtitle { font-size: 0.92rem; color: rgba(255,255,255,0.35); max-width: 480px; line-height: 1.8; margin-top: 0.8rem; }
+.services-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  margin-top: 4rem; max-width: 1200px; margin-left: auto; margin-right: auto;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.service-card {
+  padding: 3rem 2.5rem; border-right: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.4s; position: relative; overflow: hidden;
+}
+.service-card:nth-child(3n) { border-right: none; }
+.service-card:nth-child(n+4) { border-bottom: none; }
+.service-card:hover { background: rgba(255,255,255,0.03); }
+.service-card:hover .s-line { width: 100%; }
+.s-num { font-family: var(--serif); font-size: 0.75rem; font-style: italic; color: var(--gold); margin-bottom: 2rem; display: block; letter-spacing: 0.08em; }
+.service-card h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 400; color: var(--cream); margin-bottom: 1rem; line-height: 1.3; }
+.service-card p { font-size: 0.85rem; line-height: 1.78; color: rgba(255,255,255,0.35); }
+.s-line { position: absolute; bottom: 0; left: 0; height: 1px; width: 0; background: var(--gold); transition: width 0.6s ease; }
+
+/* ── PORTFOLIO ── */
+#portfolio { background: var(--cream2); }
+.portfolio-wrap { max-width: 1200px; margin: 0 auto; }
+.portfolio-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5px; background: var(--border2); border: 1px solid var(--border2); margin-top: 4rem; }
+.portfolio-card {
+  background: var(--cream); padding: 3rem;
+  transition: all 0.4s; position: relative; overflow: hidden;
+}
+.portfolio-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 0; background: var(--gold); transition: height 0.5s ease; }
+.portfolio-card:hover::before { height: 100%; }
+.portfolio-card:hover { background: var(--cream2); }
+.p-cat { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+.p-stat { font-family: var(--serif); font-size: 2.4rem; font-style: italic; font-weight: 400; color: var(--ink); display: block; margin-bottom: 0.6rem; line-height: 1; }
+.portfolio-card h3 { font-family: var(--serif); font-size: 1.3rem; font-weight: 400; margin-bottom: 0.8rem; line-height: 1.3; color: var(--ink); }
+.portfolio-card p { font-size: 0.85rem; line-height: 1.78; color: var(--muted); margin-bottom: 1.6rem; }
+.p-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.p-tag { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 0.8rem; background: var(--gold-pale); border: 1px solid var(--border); color: var(--gold); }
+
+/* ── PROOF ── */
+#proof { background: var(--cream); }
+.proof-wrap { max-width: 1200px; margin: 0 auto; }
+.proof-intro { max-width: 520px; }
+.proof-intro p { font-size: 0.92rem; line-height: 1.85; color: var(--muted); margin-top: 0.8rem; }
+.proof-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2rem; margin-top: 4rem; }
+.proof-card {
+  border: 1px solid var(--border2); overflow: hidden;
+  transition: all 0.4s; background: var(--cream);
+}
+.proof-card:hover { border-color: var(--gold); box-shadow: var(--shadow); transform: translateY(-3px); }
+.proof-img-wrap { position: relative; overflow: hidden; background: var(--cream3); }
+.proof-img {
+  width: 100%; display: block; object-fit: cover; object-position: top;
+  max-height: 240px; transition: transform 0.6s ease;
+  filter: none;
+}
+.proof-card:hover .proof-img { transform: scale(1.02); }
+
+/* ── SCREENSHOT PLACEHOLDER ── */
+.proof-placeholder {
+  width: 100%; height: 200px; background: var(--cream3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.8rem; border-bottom: 1px solid var(--border2);
+}
+.proof-placeholder-icon { font-size: 2rem; opacity: 0.3; }
+.proof-placeholder-text { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted2); }
+
+.proof-label { padding: 1.5rem 1.8rem; }
+.proof-label h4 { font-family: var(--serif); font-size: 1.05rem; font-weight: 400; margin-bottom: 0.5rem; color: var(--ink); }
+.proof-label p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+.proof-tag { display: inline-block; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 0.3rem 0.7rem; background: var(--gold-pale); border: 1px solid var(--border); color: var(--gold); margin-top: 0.8rem; }
+
+/* ── TESTIMONIALS ── */
+#testimonials { background: var(--cream2); }
+.testimonials-wrap { max-width: 1200px; margin: 0 auto; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5px; background: var(--border2); border: 1px solid var(--border2); margin-top: 4rem; }
+.testimonial-card { background: var(--cream); padding: 3rem 2.5rem; transition: background 0.4s; }
+.testimonial-card:hover { background: var(--cream2); }
+.t-quote { font-family: var(--serif); font-size: 3.5rem; color: var(--gold); line-height: 0.6; display: block; margin-bottom: 1.8rem; font-style: italic; opacity: 0.6; }
+.testimonial-card blockquote { font-family: var(--serif); font-size: 1rem; line-height: 1.78; color: var(--ink3); font-style: italic; margin-bottom: 2rem; font-weight: 400; }
+.t-author { display: flex; align-items: center; gap: 0.8rem; }
+.t-av { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--gold-pale); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 0.9rem; color: var(--gold); font-style: italic; flex-shrink: 0; }
+.t-name { font-size: 0.82rem; font-weight: 500; color: var(--ink); letter-spacing: 0.04em; }
+.t-role { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+.testimonial-cta { background: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; padding: 3rem 2.5rem; }
+.t-cta-num { font-family: var(--serif); font-size: 4rem; font-style: italic; color: var(--gold-light); line-height: 1; }
+.t-cta-label { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.btn-gold { font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; background: var(--gold); color: var(--cream); padding: 0.8rem 1.8rem; text-decoration: none; display: inline-block; border: 1px solid var(--gold); transition: all 0.3s; font-family: var(--sans); font-weight: 400; }
+.btn-gold:hover { background: transparent; color: var(--gold); }
+
+/* ── PROCESS ── */
+#process { background: var(--cream); }
+.process-wrap { max-width: 1200px; margin: 0 auto; }
+.process-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 5rem; border: 1px solid var(--border2); }
+.process-step {
+  padding: 3rem 2rem; border-right: 1px solid var(--border2);
+  text-align: left; position: relative; transition: background 0.4s;
+}
+.process-step:last-child { border-right: none; }
+.process-step:hover { background: var(--cream2); }
+.step-num {
+  font-family: var(--serif); font-size: 3.5rem; font-style: italic; font-weight: 300;
+  color: rgba(184,154,92,0.18); line-height: 1; margin-bottom: 2rem; display: block;
+  transition: color 0.4s;
+}
+.process-step:hover .step-num { color: rgba(184,154,92,0.35); }
+.process-step h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 400; color: var(--ink); margin-bottom: 0.8rem; line-height: 1.3; }
+.process-step p { font-size: 0.82rem; line-height: 1.72; color: var(--muted); }
+.step-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; transition: background 0.4s; }
+.process-step:hover .step-bar { background: var(--gold); }
+
+/* ── CTA BANNER ── */
+.cta-section { background: var(--ink); padding: 8rem 5rem; text-align: center; position: relative; overflow: hidden; }
+.cta-section::before {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(184,154,92,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-eyebrow { font-size: 0.64rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; font-family: var(--sans); font-weight: 400; }
+.cta-section h2 { font-family: var(--serif); font-size: clamp(2.4rem, 4vw, 3.6rem); font-weight: 400; color: var(--cream); margin-bottom: 1.2rem; position: relative; z-index: 1; }
+.cta-section h2 em { font-style: italic; color: var(--gold-light); }
+.cta-section p { font-size: 0.95rem; color: rgba(255,255,255,0.38); margin-bottom: 3rem; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.8; position: relative; z-index: 1; }
+.cta-details { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem; position: relative; z-index: 1; }
+.cta-detail { font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.25); display: flex; align-items: center; gap: 0.5rem; }
+.cta-detail::before { content: '—'; color: var(--gold); font-family: var(--serif); }
+
+/* ── CONTACT ── */
+#contact { background: var(--cream2); }
+.contact-wrap { max-width: 1200px; margin: 3rem auto 0; display: grid; grid-template-columns: 1fr 1.3fr; gap: 6rem; align-items: start; }
+.contact-info h3 { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; margin-bottom: 1rem; color: var(--ink); line-height: 1.3; }
+.contact-info p { font-size: 0.9rem; line-height: 1.85; color: var(--muted); margin-bottom: 2.5rem; }
+.contact-detail { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+.c-icon { width: 34px; height: 34px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--gold); flex-shrink: 0; }
+.contact-detail a, .contact-detail span { font-size: 0.85rem; color: var(--muted); text-decoration: none; transition: color 0.3s; }
+.contact-detail a:hover { color: var(--gold); }
+.contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group label { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted2); }
+.form-group input, .form-group textarea {
+  background: var(--cream); border: 1px solid var(--border2);
+  color: var(--ink); padding: 0.9rem 1.1rem; font-family: var(--sans);
+  font-size: 0.88rem; font-weight: 300; outline: none;
+  transition: border-color 0.3s; resize: none; border-radius: 0;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--gold); }
+.form-group input::placeholder, .form-group textarea::placeholder { color: var(--muted2); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink); color: rgba(255,255,255,0.3);
+  padding: 2.5rem 5rem; display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-logo { font-family: var(--serif); font-size: 1.4rem; font-style: italic; font-weight: 400; color: var(--cream); text-decoration: none; }
+.footer-copy { font-size: 0.72rem; letter-spacing: 0.1em; }
+.footer-link { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); text-decoration: none; transition: opacity 0.3s; }
+.footer-link:hover { opacity: 0.7; }
+
+/* ── REVEAL ── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  nav { padding: 1.2rem 2rem; }
+  nav.scrolled { padding: 0.9rem 2rem; }
+  .nav-links { display: none; }
+  section { padding: 5rem 2rem; }
+  #hero { grid-template-columns: 1fr; min-height: auto; }
+  .hero-left { padding: 8rem 2rem 4rem; }
+  .hero-right { display: none; }
+  .hero-scroll { left: 2rem; }
+  .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .service-card:nth-child(2n) { border-right: none; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .proof-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .process-grid { grid-template-columns: repeat(2,1fr); }
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+  .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+  .form-row { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+  .cta-section { padding: 5rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cd"></div>
+<div class="cursor-ring" id="cr"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Anna<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#proof">Proof of Work</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://calendly.com" target="_blank" class="nav-cta">Book a Call</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Appointment Setter & Virtual Assistant</div>
+    <h1 class="hero-h1">Helping You<br>Book <em>More</em><br>Qualified Meetings</h1>
+    <p class="hero-sub">Professional lead generation, client communication, and pipeline management — so you can focus on closing deals and growing your business.</p>
+    <div class="hero-actions">
+      <a href="https://calendly.com" target="_blank" class="btn-primary">Book Free Consultation</a>
+      <a href="#portfolio" class="btn-outline">View Proof of Work</a>
+    </div>
+    <div class="hero-scroll"><div class="scroll-line"></div>Scroll</div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-pattern"></div>
+    <div class="hero-right-inner">
+      <div class="hero-center-text">
+        <div class="eyebrow">Available Worldwide</div>
+        <div class="hero-big-a">A</div>
+        <div class="hero-tagline-right">Precision · Results · Trust</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item reveal">
+    <span class="stat-number" data-target="5">0</span>
+    <span class="stat-label">Years of Experience</span>
+  </div>
+  <div class="stat-item reveal reveal-delay-1">
+    <span class="stat-number" data-target="100">0</span>
+    <span class="stat-label">Leads Generated</span>
+  </div>
+  <div class="stat-item reveal reveal-delay-2">
+    <span class="stat-number" data-target="100">0</span>
+    <span class="stat-label">Meetings Booked</span>
+  </div>
+  <div class="stat-item reveal reveal-delay-3">
+    <span class="stat-number" data-target="98">0</span>
+    <span class="stat-label">Client Satisfaction %</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-wrap">
+    <div class="section-tag reveal">About Me</div>
+    <h2 class="section-title reveal">Meet <em>Anna</em></h2>
+    <div class="about-grid">
+      <div class="about-portrait reveal">
+        <div class="portrait-inner">
+          <div class="portrait-monogram">A</div>
+        </div>
+        <div class="portrait-badge">
+          <strong>5+</strong>
+          <span>Years of Excellence</span>
+        </div>
+      </div>
+      <div class="about-body reveal">
+        <p>Hi, I'm Anna — a professional Appointment Setter and Virtual Assistant dedicated to helping businesses generate qualified leads, manage client communication, and book high-quality appointments.</p>
+        <div class="about-divider"></div>
+        <p>With years of experience working across real estate, coaching, and agency niches, I bring reliable systems and a proactive approach to every client relationship. My goal is simple: free you from the busywork so you can focus on closing deals and growing your business.</p>
+        <p>I'm trusted by clients across multiple time zones and industries for my attention to detail, consistent follow-through, and measurable results.</p>
+        <div class="about-tags">
+          <span class="tag">Real Estate</span>
+          <span class="tag">Coaching</span>
+          <span class="tag">Agency</span>
+          <span class="tag">Lead Generation</span>
+          <span class="tag">CRM Management</span>
+          <span class="tag">Cold Outreach</span>
+          <span class="tag">GoHighLevel</span>
+          <span class="tag">HubSpot</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-tag reveal">What I Offer</div>
+    <h2 class="section-title reveal">Services <em>Designed</em><br>to Scale You</h2>
+    <p class="services-subtitle reveal">A complete suite of appointment setting and VA services tailored to your business goals.</p>
+  </div>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">01</span>
+      <h3>Appointment Setting</h3>
+      <p>Cold outreach, lead qualification, and calendar management to keep your pipeline full of qualified prospects ready to close.</p>
+    </div>
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">02</span>
+      <h3>Lead Generation</h3>
+      <p>Targeted prospecting and list building to identify and connect with your ideal clients using the best tools available.</p>
+    </div>
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">03</span>
+      <h3>Email Follow-Ups</h3>
+      <p>Consistent follow-up sequences via email and phone to convert warm leads into booked, confirmed meetings.</p>
+    </div>
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">04</span>
+      <h3>CRM Management</h3>
+      <p>Keeping your CRM accurate, contacts updated, and reports clean so you always know exactly where deals stand.</p>
+    </div>
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">05</span>
+      <h3>Virtual Assistant Support</h3>
+      <p>Inbox management, scheduling, admin tasks, and coordination so nothing falls through the cracks.</p>
+    </div>
+    <div class="service-card">
+      <div class="s-line"></div>
+      <span class="s-num">06</span>
+      <h3>Social Media Outreach</h3>
+      <p>DM outreach on Instagram and Facebook to attract leads, build connections, and book discovery calls.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="portfolio-wrap">
+    <div class="section-tag reveal">Featured Work</div>
+    <h2 class="section-title reveal">Results That <em>Speak</em><br>for Themselves</h2>
+    <div class="portfolio-grid reveal">
+      <div class="portfolio-card">
+        <div class="p-cat">Social Media Outreach</div>
+        <span class="p-stat">150+ Leads/mo</span>
+        <h3>Instagram Outreach Campaign</h3>
+        <p>Managed Instagram DM outreach for a coaching business, generating 150+ qualified leads per month and booking 40+ discovery calls through personalized messaging sequences.</p>
+        <div class="p-tags">
+          <span class="p-tag">Instagram</span>
+          <span class="p-tag">DM Outreach</span>
+          <span class="p-tag">Lead Gen</span>
+          <span class="p-tag">Coaching</span>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="p-cat">Appointment Booking</div>
+        <span class="p-stat">45+ Meetings/mo</span>
+        <h3>Appointment Booking System</h3>
+        <p>Managed end-to-end appointment scheduling with confirmed bookings across multiple calendars — Demo and Ongoing Support — ensuring clients show up prepared and on time.</p>
+        <div class="p-tags">
+          <span class="p-tag">Calendar Management</span>
+          <span class="p-tag">Scheduling</span>
+          <span class="p-tag">Follow-ups</span>
+          <span class="p-tag">CRM</span>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="p-cat">Virtual Assistant</div>
+        <span class="p-stat">+65% Response Rate</span>
+        <h3>Multi-Channel Follow-Up Workflow</h3>
+        <p>Designed and executed multi-channel follow-up workflows including email, phone, and SMS sequences, increasing client response rates by 65%.</p>
+        <div class="p-tags">
+          <span class="p-tag">Email</span>
+          <span class="p-tag">Phone</span>
+          <span class="p-tag">SMS</span>
+          <span class="p-tag">GoHighLevel</span>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="p-cat">CRM Management</div>
+        <span class="p-stat">5,000+ Contacts</span>
+        <h3>CRM Organisation & Cleanup</h3>
+        <p>Reorganised and cleaned a 5,000+ contact HubSpot CRM, implemented tagging systems, automated workflows, and created reporting dashboards for a marketing agency.</p>
+        <div class="p-tags">
+          <span class="p-tag">HubSpot</span>
+          <span class="p-tag">Automation</span>
+          <span class="p-tag">Reporting</span>
+          <span class="p-tag">Data Cleanup</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF OF WORK -->
+<section id="proof">
+  <div class="proof-wrap">
+    <div class="proof-intro">
+      <div class="section-tag reveal">Real Evidence</div>
+      <h2 class="section-title reveal">Proof of <em>Work</em></h2>
+      <p class="reveal">Real screenshots from active client engagements — confirmed appointment dashboards and direct client feedback.</p>
+    </div>
+    <div class="proof-grid reveal">
+
+      <!-- CARD 1: Appointments Dashboard Screenshot -->
+      <div class="proof-card">
+        <div class="proof-img-wrap">
+          <!-- 
+            ★ HOW TO ADD YOUR SCREENSHOT ★
+            1. Go to https://imgbb.com and upload your Appointments_dashboard_overview.png
+            2. Copy the "Direct link" URL
+            3. Replace the placeholder below with:
+               <img src="YOUR_IMAGE_URL" alt="Appointments dashboard" class="proof-img">
+            4. Delete the proof-placeholder div
+          -->
+          <img src="https://i.ibb.co/PZmGmpHH/Appointments-dashboard-overview.png" alt="Live appointments dashboard" class="proof-img" loading="lazy">
+        </div>
+        <div class="proof-label">
+          <h4>Live Appointments Dashboard</h4>
+          <p>Active pipeline showing confirmed bookings across Demo Calendar and Ongoing Support calendars — real client results.</p>
+          <span class="proof-tag">Real Screenshot</span>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="proof-card">
+        <div class="proof-img-wrap">
+          <img src="https://i.ibb.co/fVpmjV1y/Chat-GPT-Image-Apr-8-2026-02-52-56-PM.png" alt="Appointment management view" class="proof-img" loading="lazy">
+        </div>
+        <div class="proof-label">
+          <h4>Appointment Management View</h4>
+          <p>Full appointment list with status tracking, contact management, and calendar assignment across multiple clients.</p>
+          <span class="proof-tag">Real Screenshot</span>
+        </div>
+      </div>
+
+
+    </div>
+
+      <ol style="font-size:0.85rem;color:var(--muted);line-height:2;padding-left:1.2rem">
+        <li>Go to <strong style="color:var(--ink)">imgbb.com</strong> (free image hosting)</li>
+        <li>Upload each of your 4 screenshots</li>
+        <li>For each image, copy the <strong style="color:var(--ink)">"Direct link"</strong> URL (ends in .png or .jpg)</li>
+        <li>Open this HTML file, find the <strong style="color:var(--ink)">proof-placeholder</strong> div for each card</li>
+        <li>Replace it with: <code style="background:var(--cream3);padding:0.2rem 0.5rem;font-size:0.82rem">&lt;img src="YOUR_URL" alt="..." class="proof-img"&gt;</code></li>
+        <li>Re-upload the updated HTML to Netlify Drop</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testimonials-wrap">
+    <div class="section-tag reveal">Client Feedback</div>
+    <h2 class="section-title reveal">What Clients <em>Say</em></h2>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <span class="t-quote">"</span>
+        <blockquote>Anna completely transformed our booking process. She's proactive, reliable, and genuinely invested in results. Our calendar has never been this full.</blockquote>
+        <div class="t-author">
+          <div class="t-av">J</div>
+          <div><div class="t-name">James R.</div><div class="t-role">CEO, Real Estate Agency</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="t-quote">"</span>
+        <blockquote>Working with Anna feels like having a full-time team member. She handles follow-ups and scheduling with zero oversight needed from my side.</blockquote>
+        <div class="t-author">
+          <div class="t-av">S</div>
+          <div><div class="t-name">Sarah M.</div><div class="t-role">Founder, Coaching Business</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="t-quote">"</span>
+        <blockquote>Anna's outreach and lead qualification skills are exceptional. She booked us 45+ qualified meetings in her first month. An absolute game-changer.</blockquote>
+        <div class="t-author">
+          <div class="t-av">D</div>
+          <div><div class="t-name">David K.</div><div class="t-role">Director, AI Agency</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="t-quote">"</span>
+        <blockquote>I was drowning in admin before Anna stepped in. She organised my CRM, set up follow-up sequences, and now my pipeline practically runs itself.</blockquote>
+        <div class="t-author">
+          <div class="t-av">E</div>
+          <div><div class="t-name">Emily T.</div><div class="t-role">Founder, Marketing Agency</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="t-quote">"</span>
+        <blockquote>Anna's systematic approach to lead qualification saved us countless hours. She identifies serious buyers quickly and books only quality appointments.</blockquote>
+        <div class="t-author">
+          <div class="t-av">M</div>
+          <div><div class="t-name">Michael P.</div><div class="t-role">Real Estate Investor</div></div>
+        </div>
+      </div>
+      <div class="testimonial-cta">
+        <div class="t-cta-num">98%</div>
+        <div class="t-cta-label">Client Satisfaction Rate</div>
+        <a href="https://calendly.com" target="_blank" class="btn-gold">Book a Free Call</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="process-wrap">
+    <div class="section-tag reveal">How I Work</div>
+    <h2 class="section-title reveal">A <em>Proven</em> Process<br>for Consistent Results</h2>
+    <div class="process-grid reveal">
+      <div class="process-step">
+        <div class="step-bar"></div>
+        <span class="step-num">01</span>
+        <h3>Understand Your Business</h3>
+        <p>I learn your target audience, ideal client profile, and goals to build a tailored outreach strategy from day one.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-bar"></div>
+        <span class="step-num">02</span>
+        <h3>Build Lists & Strategy</h3>
+        <p>I source qualified prospects and craft personalised messaging sequences engineered for maximum response rates.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-bar"></div>
+        <span class="step-num">03</span>
+        <h3>Contact & Nurture</h3>
+        <p>I reach out via email, phone, and social media, nurturing conversations toward a confirmed booking.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-bar"></div>
+        <span class="step-num">04</span>
+        <h3>Book Qualified Meetings</h3>
+        <p>Qualified prospects land directly on your calendar, prepared and ready for you to close the deal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<div class="cta-section reveal">
+  <div class="cta-eyebrow">Ready to grow?</div>
+  <h2>Ready to Fill Your <em>Calendar</em>?</h2>
+  <p>Let's discuss how I can help you book more clients and scale your business — no pressure, just results.</p>
+  <div class="cta-details">
+    <span class="cta-detail">15–30 min free consultation</span>
+    <span class="cta-detail">Via Zoom or Google Meet</span>
+    <span class="cta-detail">No obligations</span>
+  </div>
+  <a href="https://calendly.com" target="_blank" class="btn-gold" style="font-size:0.72rem;padding:1rem 2.5rem">Book a Free Consultation</a>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-tag reveal">Get In Touch</div>
+    <h2 class="section-title reveal">Let's <em>Connect</em></h2>
+  </div>
+  <div class="contact-wrap">
+    <div class="contact-info reveal">
+      <h3>Have a project in mind?</h3>
+      <p>Let's discuss how I can help you generate leads, book meetings, and grow your business with systems that work — on autopilot.</p>
+      <div class="contact-detail">
+        <div class="c-icon">in</div>
+        <a href="https://linkedin.com/in/anna" target="_blank">Connect on LinkedIn ↗</a>
+      </div>
+      <div class="contact-detail">
+        <div class="c-icon">◎</div>
+        <span>Available Mon–Fri, 9AM–5PM</span>
+      </div>
+      <div class="contact-detail">
+        <div class="c-icon">✦</div>
+        <span>Remote — Worldwide</span>
+      </div>
+      <div style="margin-top:2.5rem">
+        <a href="https://calendly.com" target="_blank" class="btn-primary">Book a Free Consultation</a>
+      </div>
+    </div>
+    <form class="contact-form reveal" onsubmit="return false;">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" placeholder="Jane Smith">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" placeholder="Your Company">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Your Email</label>
+        <input type="email" placeholder="jane@company.com">
+      </div>
+      <div class="form-group">
+        <label>Your Message</label>
+        <textarea rows="5" placeholder="Tell me about your business, niche, and goals..."></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="align-self:flex-start;border:none">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">Anna.</a>
+  <div class="footer-copy">© 2026 Anna. All rights reserved.</div>
+  <a href="https://linkedin.com/in/anna" target="_blank" class="footer-link">LinkedIn ↗</a>
+</footer>
+
+<script>
+// ── Cursor
+const cd = document.getElementById('cd'), cr = document.getElementById('cr');
+let mx=0,my=0,fx=0,fy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){cd.style.left=mx+'px';cd.style.top=my+'px';fx+=(mx-fx)*0.1;fy+=(my-fy)*0.1;cr.style.left=fx+'px';cr.style.top=fy+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cr.style.transform='translate(-50%,-50%) scale(1.6)';cr.style.opacity='1';});
+  el.addEventListener('mouseleave',()=>{cr.style.transform='translate(-50%,-50%) scale(1)';cr.style.opacity='0.6';});
+});
+
+// ── Navbar
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>50);});
+
+// ── Reveal on scroll
+const ro = new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// ── Counter animation
+function animNum(el,target){
+  let c=0,inc=target/60;
+  const suffix=(el.dataset.target==='98')?'%':'+';
+  const t=setInterval(()=>{c+=inc;if(c>=target){c=target;clearInterval(t);}el.textContent=Math.floor(c)+suffix;},22);
+}
+const co=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){animNum(e.target,parseInt(e.target.dataset.target));co.unobserve(e.target);}
+}),{threshold:0.5});
+document.querySelectorAll('.stat-number').forEach(el=>co.observe(el));
+</script>
+</body>
+</html>
